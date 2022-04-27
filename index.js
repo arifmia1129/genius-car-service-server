@@ -16,13 +16,14 @@ function verifyAuth(req, res, next) {
         res.status(401).send({ message: "Unauthorize!" })
     }
     const token = reqAuth.split(" ")[1];
-    console.log(token);
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
             res.status(403).send({ message: "Forbidden access" });
         }
-        req.decoded = decoded;
-        next();
+        else {
+            req.decoded = decoded;
+            next();
+        }
     })
 
 }
@@ -72,9 +73,9 @@ async function run() {
         // Order
         app.get("/order", verifyAuth, async (req, res) => {
 
-            const decodedEmail = req?.decoded?.user;
+            const decodedEmail = req.decoded.user;
             const email = req?.query?.email;
-            if (email === decodedEmail) {
+            if (decodedEmail === email) {
                 const query = { email: email };
                 const cursor = orderCollection.find(query);
                 const orders = await cursor.toArray();
